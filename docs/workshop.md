@@ -379,7 +379,7 @@ You gain three things:
 
 <div class="info" data-title="Tool-agnostic on purpose">
 
-> This chapter is written for GitHub Copilot's prompt-file syntax, because it gives us the cleanest hands-on experience with `${input:...}` placeholders. Every step also works in the Copilot CLI (just paste the prompt body into your session) and in Claude Code (use `.claude/commands/*.md` — see the parallel callout at the end of §2.2.2). If you prefer, you can complete the entire chapter in Claude Code.
+> This chapter is written for GitHub Copilot's prompt-file syntax, because it gives us the cleanest hands-on experience with `${input:...}` placeholders. Every step also works in the Copilot CLI (just paste the prompt body into your session) and in Claude Code (use `.claude/commands/*.md`). If you prefer, you can complete the entire chapter in Claude Code.
 
 </div>
 
@@ -586,7 +586,7 @@ Everything above works in all three agent surfaces. Same instructions on disk, s
 
 - **VS Code (Copilot Chat, Agent mode):** `/sdd-spec` → VS Code prompts for `storyId`.
 - **GitHub Copilot CLI:** paste the prompt body into a `copilot` session, or (for repeatable use) wrap it in a custom agent under `.github/agents/`.
-- **Claude Code:** `/sdd-spec browse-catalog` in a `claude` session, using the `.claude/commands/` ports from §2.2.2.
+- **Claude Code:** `/sdd-spec browse-catalog` in a `claude` session, using the `.claude/commands/` ports from 2.2.2.
 
 Pick the tool that fits the moment. Switch mid-story if you want to.
 
@@ -619,18 +619,11 @@ In the root of the project, pick the integration that matches the agent you want
 ```bash
 # GitHub Copilot integration
 specify init duck-emporium --integration copilot
-## choose between bash or powershell
+# or Claude Code integration
+specify init duck-emporium --integration claude
+## choose your fate between bash or powershell
 cd duck-emporium
 ```
-
-> 🤖 **In Claude Code:** spec-kit ships a first-class Claude Code integration. Run instead:
->
-> ```bash
-> specify init duck-emporium --integration claude
-> cd duck-emporium
-> ```
->
-> This scaffolds `.claude/commands/speckit.*.md` files (rather than `.github/prompts/*.prompt.md`), so the same `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.implement` slash commands show up inside a `claude` session. If you want *both* tools to drive the same project, you can run `specify init` with each integration flag in turn — the two sets of command files coexist and share the same `specs/` and `.specify/` layout.
 
 <div class="warning" data-title="Workaround">
 
@@ -662,16 +655,169 @@ Chapter 2 taught you the *pattern*; Chapter 3 gave you an *implementation* of th
 
 ---
 
-# Chapter 4 (coming soon) — SDD for App Modernization
+# Chapter 4 — SDD for App Modernization
 
-> **Placeholder.** A dedicated, hands-on chapter on using SDD to **modernize legacy applications** is the second half of this full-day lab. Content details will be filled in separately.
->
-> The rough shape:
->
-> - Start from an existing legacy code base (not a greenfield scaffold).
-> - Use agentic AI to **reverse-engineer** a specification of the current behavior.
-> - Turn that spec into a **modernization plan** (target architecture, runtime, dependencies, deployment target).
-> - Break the plan into tasks and execute the migration incrementally with the same Spec → Plan → Tasks → Implement discipline you learned in Chapter 2.
-> - Applies to both **GitHub Copilot** (VS Code + CLI) and **Claude Code** — parallel callouts will follow the same style as Chapter 1.
->
-> *This chapter will be extended in the next iteration of this lab material.*
+Chapter 2 used SDD to build something new. This chapter uses the same discipline in the opposite direction: taking an **existing** code base — usually one nobody fully understands anymore — and modernizing it without losing the business rules baked into it over the years.
+
+Modernization is where agentic AI actually earns its keep. A human alone can rewrite a legacy service, but the tedious parts — reading every controller, every stored procedure, every XML config, every home-grown utility — are exactly what the agent is good at, *if* you give it a framework to work in. That framework is SDD, applied backwards: first you use the agent to **rediscover** the spec that the code implicitly encodes, then you use SDD forward again to plan and rebuild against that spec.
+
+<div class="info" data-title="Same discipline, different starting point">
+
+> In Chapter 2 the input was a user story and the output was code. In Chapter 4 the input is code and in multiple SDD iterations the output is (first) a spec, then a plan, then new code. The Spec → Plan → Tasks → Implement loop is the same, we just "misuse" it.
+
+</div>
+
+## 4.1 Why divide and conquer matters even more here
+
+A greenfield project has one thing legacy code doesn't: a bounded scope. You know what you are building because you just wrote the story. In a legacy system, scope is whatever accumulated over 5–20 years of tickets, hotfixes, integrations and "temporary" workarounds. Trying to modernize it in one pass — even with the best agent — reliably produces two outcomes:
+
+1. **Silent behavior loss.** Edge cases that were load-bearing for one specific customer disappear because nobody documented them and the agent had no reason to preserve them.
+2. **Context collapse.** The agent's context window fills up with legacy code before it gets to reason about the target architecture, and quality drops sharply.
+
+The fix is the same discipline you already learned: **break the work into phases, each producing a reviewable artifact, each committable on its own.** We use four phases for modernization:
+
+| Phase | Input | Output | Question it answers |
+| --- | --- | --- | --- |
+| **1. Rediscovery** | Legacy source, docs, tickets | Reverse engineered business logic + curated `AGENTS.md` | *What does this system actually do?* |
+| **2. Substitution audit** | Legacy sources, rediscovered business logic | Substitution map | *What in here is no longer needed or state of the art?* |
+| **3a. Re-architecture** | Reverse engineered business logic + substitution map | Target architecture plan | *What should the new shape look like?* |
+| **3b. Re-write** | Target plan + reverse engineered business logic + substitution map | New implementation + tests (you can also apply Test Driven Development here) | *How do we rebuild the business logic without losing it?* |
+| **4. Deploy (optional)** | Working new build | CI/CD pipeline + running environment | *How does this ship, repeatably?* |
+
+<div class="warning" data-title="Agentic AI is non-deterministic">
+
+> Especially for the reverse engineering in phase 1, agentic AI is not the magic solution. In real world scenarios you will always need a combination of agentic power, human oversight and deterministic tooling to ensure that the rediscovered business logic is correct. No one with a reputation would ever promise you a one-click solution. Only believe what you can validate!
+
+</div>
+
+## 4.2 Phase 1 — Rediscovery/Reverse engineering
+
+The goal of phase 1 is to produce, from the code itself, existing tests, documentation - whatever is available — a reviewable reverse engineered list of business rules, data models, and integrations. 
+
+You point the agent at the repository (or, more often, a *module* of it — see below) and ask it to produce artifacts like:
+
+- **A list of business rules** — what the system does, in plain English, with examples. This is the most important artifact: it is what you will use to validate that the new implementation preserves the old behavior.
+- **A data model summary** — entities, relationships, invariants (including the ones only enforced by DB triggers or defensive `if`s scattered across services).
+- **An integration inventory** — every external system this module talks to: databases, message queues, third-party APIs, filesystem paths, hard-coded IPs.
+- **A behavior open-questions list** — anything the agent could not resolve from the code alone. This becomes the interview list for the humans who still remember.
+
+<div class="tip" data-title="Curate an AGENTS.md before you go deep">
+
+> AGENTS.mds can also be very handy in agentic modernization scenarios. Even before the start of the rediscovery phase a curated AGENTS.md can help the agent to understand the context of the legacy system and its dependencies easier and avoid making wrong assumptions. 
+
+</div>
+
+<div class="info" data-title="Rediscovery is where humans still lead">
+
+> The agent is fast at reading code. It is not fast at knowing which of the 40 branches in the pricing engine is actually used in production. Treat phase 1 as *agent-assisted archaeology*: the agent produces drafts, humans who know the system correct them, and the corrections get folded back into the results.
+
+</div>
+
+At the end of phase 1 you have something the original codebase never had: a reviewable document a new team member can read and review. That alone is often worth the exercise, even if you never proceed to phase 2. (e.g. if you want to keep a certain technology stack for a while longer, like a mainframe)
+
+## 4.3 Phase 2 — Substitution audit
+
+Phase 1 tells you *what* the system does. Phase 2 asks: *of the things it does, which ones should not be done that way anymore?*
+
+The pattern here is a walk through the rediscovery spec, flagging each element against today's ecosystem:
+
+- **Home-grown code that is now a library.** Custom retry loops, hand-rolled JSON parsers, bespoke connection pools, in-house auth — anything that has become a well-supported dependency (or a platform primitive) since the code was written.
+- **Integrations that have moved on.** SOAP endpoints that now offer REST/GraphQL, on-prem message brokers with managed equivalents, batch file drops that could be event streams, custom SFTP scripts that could be a managed connector.
+- **Data stores that no longer fit.** A single monolithic RDBMS holding data with wildly different access patterns; a NoSQL choice that was trendy in 2015 but has no operator today; a schema shaped around a UI that no longer exists.
+- **Runtimes and frameworks past their sell-by date.** End-of-life language versions, EOL frameworks, container base images with unpatched CVEs, servers nobody ships new versions of.
+- **Operational assumptions that don't survive contact with the cloud.** Local filesystem state, background threads that must survive across requests, singleton in-memory caches, "just SSH in and restart it" runbooks.
+
+<div class="tip" data-title="Naming this phase">
+
+> "Substitution" is a working name — you may hear this phase called *dependency & integration audit*, *modernization inventory*, or *stack uplift* elsewhere. The label matters less than the artifact: a **substitution map** that pairs each legacy element with a target choice and a rationale. That map is what phase 3 consumes.
+
+</div>
+
+The output is a table (or a set of them) with rows like *"custom JWT verification in `src/auth/` → replace with framework middleware, reason: CVE surface + team no longer maintains it"* or *"nightly cron pushing CSVs to partner FTP → replace with event-driven pipeline, reason: latency + observability"*. Each row is a candidate change with an explicit trade-off, which is exactly what phase 3 needs to make architectural decisions.
+
+<div class="info" data-title="Not everything gets substituted">
+
+> A perfectly good substitution map has "keep as-is" rows. If a piece of the legacy system is stable, well-understood and cheap to run, leaving it alone is a legitimate outcome. Modernization is not a synonym for rewriting everything.
+
+</div>
+
+## 4.4 Phase 3 — Re-architect and re-write
+
+Phase 3 is where you go from *understanding* the legacy system to *replacing* it. It splits cleanly in two, and the split matters because they answer different questions and are reviewed by different people.
+
+### 4.4.1 Phase 3a — Re-architecture
+
+Input: the behavior spec (phase 1) and the substitution map (phase 2). Output: a **target architecture plan** in the same shape as Chapter 2's `plan.md`, but scoped to the whole module or system rather than a single story.
+
+The plan covers:
+
+- **Target runtime and platform** — language version, framework, deployment target (containers, serverless, managed app platform).
+- **Module and service boundaries** — what stays a monolith, what splits out, and *why* (each split needs a justification tied back to the behavior spec).
+- **Data model and storage choices** — including the migration path from the legacy schema.
+- **Integration contracts** — the concrete API/event shapes replacing each legacy integration flagged in phase 2.
+- **Cross-cutting concerns** — auth, logging, config, secrets, observability, feature flags.
+- **Migration strategy** — big-bang vs. strangler-fig vs. parallel-run, and how you keep the lights on for existing users during the transition.
+- **Risks** — the ones the agent can name from the spec plus the ones the humans add from experience.
+
+This is the phase where an architect or tech lead reviews and pushes back most. The agent's job here is to produce a *complete first draft* fast enough that humans can spend their time on judgment, not on typing.
+
+### 4.4.2 Phase 3b — Re-write
+
+Once the target plan is approved, re-writing the business logic looks a lot like Chapter 2. You break the plan into tasks (`tasks.md`), and you implement them one at a time with tests, exactly like `sdd-implement` — the only difference is that the "acceptance check" for each task usually includes *"and it still passes the behavior tests derived from phase 1"*.
+
+Two techniques matter here:
+
+- **Behavior-preserving tests come first.** Before rewriting a module, derive tests from the rediscovery spec that exercise its observable behavior. These tests live against the *new* implementation and are your guardrail against silent regressions.
+- **Strangler-fig by default.** Route new implementations behind the same interface as the legacy code and switch traffic gradually. Big-bang cutovers are viable for small modules and effectively never viable for large ones.
+
+<div class="warning" data-title="Do not let the agent invent business rules">
+
+> When the agent hits a gap in the behavior spec during phase 3b, it will be tempted to *guess* what the legacy system did. Stop it. A gap in phase 3b is a bug in phase 1 — go back, look at the legacy code, update the spec, then continue. Guessed business rules are the single most expensive class of modernization defects because they only surface in production, quietly, on the customers whose edge case you missed.
+
+</div>
+
+## 4.5 Phase 4 (optional) — CI/CD and deployment
+
+Phase 4 is optional in the sense that a successful phase 3b already gives you a modernized module. It is *not* optional if the modernization has to actually ship.
+
+At this point the artifacts you produced in earlier phases pay off again: the target plan named the deployment target, the substitution map named the operational changes, and the behavior tests give you a signal you can gate a pipeline on. Phase 4 is where you:
+
+- Set up (or extend) the CI pipeline to build, test and scan the new code.
+- Produce the infrastructure-as-code for the target platform (containers, managed services, whatever phase 3a picked).
+- Wire up secrets, config, observability and health checks.
+- Define the promotion path — dev → staging → production — and the rollback path.
+- Run the strangler-fig cutover from phase 3b behind whatever traffic-shifting mechanism your platform provides.
+
+Agents are genuinely useful here, especially for generating pipeline definitions and IaC modules from an approved plan, but the review bar is high: this is the phase where a bad prompt turns into a production outage. Treat every generated pipeline file the same way you would a PR from a new hire — read every line.
+
+## 4.6 What the artifacts look like on disk
+
+If you followed the naming conventions from Chapter 2, a modernized module ends up with a folder that tells the whole story:
+
+```text
+specs/<module-name>/
+  rediscovery/
+    behavior-spec.md          # phase 1
+    data-model.md             # phase 1
+    integrations.md           # phase 1
+    open-questions.md         # phase 1
+  substitution-map.md         # phase 2
+  plan.md                     # phase 3a
+  tasks.md                    # phase 3b (breakdown of plan.md)
+  deploy/                     # phase 4
+    pipeline.md
+    infra-plan.md
+AGENTS.md                     # curated by hand, updated as the module evolves
+```
+
+Any teammate — or any agent, on any surface — can walk into that folder and reconstruct why the current shape of the code exists. That reviewability is the whole point of SDD, and it is what makes modernization tractable at scale.
+
+## 4.7 Cross-tool notes
+
+Everything in this chapter is deliberately tool-agnostic, and the hands-on that follows will show the same parallel callouts for GitHub Copilot (VS Code + CLI) and Claude Code that you saw in Chapters 1–3.
+
+- **Rediscovery** works well as a custom **agent / subagent** (`.github/agents/rediscovery.agent.md` or `.claude/agents/rediscovery.md`) with read-only tool access — it reads a lot, writes only into `specs/<module>/rediscovery/`.
+- **Substitution audit** works well as a **prompt / slash command** because it is a single-shot document generation on top of the rediscovery artifacts.
+- **Re-architecture, re-write and deploy** map one-to-one onto the `sdd-plan`, `sdd-tasks`, `sdd-implement` prompts from Chapter 2. In many cases you can literally reuse them, pointing them at `specs/<module>/plan.md` instead of `specs/<story>/plan.md`.
+
+The hands-on section next builds these out, module by module, on a small legacy code base.
