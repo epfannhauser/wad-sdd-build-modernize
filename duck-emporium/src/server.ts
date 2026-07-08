@@ -7,13 +7,18 @@ type AppOptions = {
   catalogPath?: string;
 };
 
+export async function renderHomePage(options: AppOptions = {}): Promise<string> {
+  const ducks = await loadCatalog(options.catalogPath);
+
+  return renderCatalogPage(ducks);
+}
+
 export function createApp(options: AppOptions = {}): Express {
   const app = express();
 
   app.get("/", async (_request, response, next) => {
     try {
-      const ducks = await loadCatalog(options.catalogPath);
-      const html = renderCatalogPage(ducks);
+      const html = await renderHomePage(options);
 
       response.type("html").send(html);
     } catch (error) {
