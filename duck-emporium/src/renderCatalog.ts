@@ -65,14 +65,15 @@ function renderDuckIllustration(duck: Duck): string {
     '    <path class="water water-back" d="M31 139c22-12 38 12 60 0s38-12 59 0 36 12 49 0v26H31z" />',
     '    <path class="duck-shadow" d="M58 150c20 18 95 20 123 2 8-5 6-13-4-15-31-7-95-8-123 0-10 3-10 8 4 13z" />',
     '    <path class="duck-body" d="M68 109c15-28 45-43 78-32 26 9 44 33 46 58 2 23-19 37-55 37H82c-24 0-38-11-36-29 2-14 9-25 22-34z" />',
-    '    <path class="duck-wing" d="M94 121c15 4 34 4 51-5-5 20-19 31-40 32-14 1-25-5-32-16 5-8 12-12 21-11z" />',
     '    <circle class="duck-head" cx="80" cy="76" r="39" />',
-    '    <path class="duck-beak" d="M35 80c-18 2-29 9-29 18 0 10 14 15 36 12 13-2 23-8 28-18-7-9-18-14-35-12z" />',
-    '    <path class="duck-beak-lower" d="M14 101c14 6 31 6 50-1-4 7-12 12-24 14-14 2-24-2-26-13z" />',
+    '    <path class="duck-wing" d="M94 121c15 4 34 4 51-5-5 20-19 31-40 32-14 1-25-5-32-16 5-8 12-12 21-11z" />',
+    `    ${renderCategoryDetail(duck.category)}`,
+    '    <path class="duck-beak" d="M40 82c-20 0-34 7-36 18-1 8 7 15 23 18 18 3 38-1 53-10 8-5 14-12 18-20-15-6-34-7-58-6z" />',
+    '    <path class="duck-beak-top" d="M9 100c12-10 40-14 81-9-6-5-21-10-45-11-21-1-35 6-36 20z" />',
+    '    <path class="duck-beak-smile" d="M20 109c17 6 39 4 59-4" />',
     '    <circle class="duck-eye" cx="89" cy="66" r="6" />',
     '    <circle class="duck-eye-shine" cx="91" cy="64" r="2" />',
-    '    <path class="duck-cheek" d="M64 82c8 4 18 4 25 0" />',
-    `    ${renderCategoryDetail(duck.category)}`,
+    '    <path class="duck-cheek" d="M62 83c9 5 22 5 33-1" />',
     '  </svg>',
     "</figure>",
   ].join("\n");
@@ -88,7 +89,7 @@ function renderCategoryDetail(category: string): string {
   }
 
   if (category === "Maritime") {
-    return '<path class="detail-stroke" d="M139 42c12 8 18 19 18 34M139 42c-12 8-18 19-18 34M115 76h48M139 42v66" />';
+    return '<g class="detail-badge"><circle cx="161" cy="102" r="22" /><path class="detail-stroke" d="M161 83v39M145 101h32M161 83c8 6 13 14 13 24M161 83c-8 6-13 14-13 24" /></g>';
   }
 
   if (category === "Wellness") {
@@ -370,8 +371,15 @@ const pageStyles = `
       stroke-width: 3;
     }
 
-    .duck-beak-lower {
+    .duck-beak-top {
       fill: #fdba74;
+    }
+
+    .duck-beak-smile {
+      fill: none;
+      stroke: #c2410c;
+      stroke-linecap: round;
+      stroke-width: 3;
     }
 
     .duck-eye {
@@ -402,6 +410,16 @@ const pageStyles = `
       stroke: var(--duck-detail);
       stroke-linejoin: round;
       stroke-width: 3;
+    }
+
+    .detail-badge circle {
+      fill: rgba(255, 255, 255, 0.62);
+      stroke: var(--duck-detail);
+      stroke-width: 3;
+    }
+
+    .detail-badge .detail-stroke {
+      stroke-width: 5;
     }
 
     .duck-card-content {
