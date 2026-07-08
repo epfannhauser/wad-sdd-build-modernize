@@ -17,7 +17,7 @@ function assertIntegerInRange(
  * @returns The Fibonacci number at index n.
  * @throws {RangeError} When n is not an integer greater than or equal to 0.
  */
-function fib(n: number): number {
+export function fib(n: number): number {
   assertIntegerInRange(n, "n", 0);
 
   if (n < 2) {
@@ -46,7 +46,7 @@ function fib(n: number): number {
  * @returns The prime number at position n.
  * @throws {RangeError} When n is not an integer greater than or equal to 1.
  */
-function nthPrime(n: number): number {
+export function nthPrime(n: number): number {
   assertIntegerInRange(n, "n", 1);
 
   const isPrime = (candidate: number): boolean => {
@@ -76,7 +76,9 @@ function nthPrime(n: number): number {
   return candidate;
 }
 
-console.log({
-  fib10: fib(10),
-  prime10: nthPrime(10),
-});
+if (import.meta.main) {
+  console.log({
+    fib10: fib(10),
+    prime10: nthPrime(10),
+  });
+}
