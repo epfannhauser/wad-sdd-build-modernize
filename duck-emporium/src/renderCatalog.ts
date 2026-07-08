@@ -67,40 +67,15 @@ function renderDuckIllustration(duck: Duck): string {
     '    <path class="duck-body" d="M68 109c15-28 45-43 78-32 26 9 44 33 46 58 2 23-19 37-55 37H82c-24 0-38-11-36-29 2-14 9-25 22-34z" />',
     '    <circle class="duck-head" cx="80" cy="76" r="39" />',
     '    <path class="duck-wing" d="M94 121c15 4 34 4 51-5-5 20-19 31-40 32-14 1-25-5-32-16 5-8 12-12 21-11z" />',
-    `    ${renderCategoryDetail(duck.category)}`,
-    '    <path class="duck-beak" d="M40 82c-20 0-34 7-36 18-1 8 7 15 23 18 18 3 38-1 53-10 8-5 14-12 18-20-15-6-34-7-58-6z" />',
-    '    <path class="duck-beak-top" d="M9 100c12-10 40-14 81-9-6-5-21-10-45-11-21-1-35 6-36 20z" />',
-    '    <path class="duck-beak-smile" d="M20 109c17 6 39 4 59-4" />',
+    '    <path class="duck-beak" d="M42 80c-20 1-34 9-38 20 5 11 22 17 44 15 18-2 35-10 46-23-12-9-29-13-52-12z" />',
+    '    <path class="duck-beak-top" d="M9 99c12-9 39-12 79-6-10-8-28-13-48-12-18 1-29 7-31 18z" />',
+    '    <path class="duck-beak-smile" d="M20 107c18 6 43 3 63-7" />',
     '    <circle class="duck-eye" cx="89" cy="66" r="6" />',
     '    <circle class="duck-eye-shine" cx="91" cy="64" r="2" />',
     '    <path class="duck-cheek" d="M62 83c9 5 22 5 33-1" />',
     '  </svg>',
     "</figure>",
   ].join("\n");
-}
-
-function renderCategoryDetail(category: string): string {
-  if (category === "Debugging") {
-    return '<path class="detail-stroke" d="M124 41h41v23h-41zM133 33v8M156 33v8M133 64v9M156 64v9" />';
-  }
-
-  if (category === "Philosopher") {
-    return '<path class="detail-fill" d="M58 34c18-13 43-9 56 7-20-5-38-3-56 7z" /><path class="detail-stroke" d="M113 42c10 2 19 8 26 18" />';
-  }
-
-  if (category === "Maritime") {
-    return '<g class="detail-badge"><circle cx="161" cy="102" r="22" /><path class="detail-stroke" d="M161 83v39M145 101h32M161 83c8 6 13 14 13 24M161 83c-8 6-13 14-13 24" /></g>';
-  }
-
-  if (category === "Wellness") {
-    return '<path class="detail-fill" d="M141 55c15-18 36-13 43 3-16 0-29 7-43 21-14-14-27-21-43-21 7-16 28-21 43-3z" />';
-  }
-
-  if (category === "Limited Edition") {
-    return '<path class="detail-fill" d="M62 29l9 17 19 3-14 13 4 19-18-9-17 9 3-19-14-13 19-3z" />';
-  }
-
-  return "";
 }
 
 const pageStyles = `
@@ -395,31 +370,6 @@ const pageStyles = `
       stroke: #a16207;
       stroke-linecap: round;
       stroke-width: 3;
-    }
-
-    .detail-stroke {
-      fill: none;
-      stroke: var(--duck-detail);
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-width: 6;
-    }
-
-    .detail-fill {
-      fill: var(--duck-accent);
-      stroke: var(--duck-detail);
-      stroke-linejoin: round;
-      stroke-width: 3;
-    }
-
-    .detail-badge circle {
-      fill: rgba(255, 255, 255, 0.62);
-      stroke: var(--duck-detail);
-      stroke-width: 3;
-    }
-
-    .detail-badge .detail-stroke {
-      stroke-width: 5;
     }
 
     .duck-card-content {
