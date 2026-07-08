@@ -1,8 +1,24 @@
-// returns the nth Fibonacci number
-function fib(n: number): number {
-  if (!Number.isInteger(n) || n < 0) {
-    throw new Error("n must be a non-negative integer");
+function assertIntegerInRange(
+  value: number,
+  name: string,
+  minimum: number,
+): void {
+  if (!Number.isInteger(value) || value < minimum) {
+    throw new RangeError(`${name} must be an integer greater than or equal to ${minimum}`);
   }
+}
+
+/**
+ * Returns the nth Fibonacci number.
+ *
+ * The sequence is zero-indexed: fib(0) is 0, fib(1) is 1, and fib(10) is 55.
+ *
+ * @param n - Zero-based Fibonacci index.
+ * @returns The Fibonacci number at index n.
+ * @throws {RangeError} When n is not an integer greater than or equal to 0.
+ */
+function fib(n: number): number {
+  assertIntegerInRange(n, "n", 0);
 
   if (n < 2) {
     return n;
@@ -20,11 +36,18 @@ function fib(n: number): number {
   return current;
 }
 
-// returns the nth prime
+/**
+ * Returns the nth prime number.
+ *
+ * The sequence is one-indexed: nthPrime(1) is 2, nthPrime(2) is 3, and
+ * nthPrime(10) is 29.
+ *
+ * @param n - One-based prime number index.
+ * @returns The prime number at position n.
+ * @throws {RangeError} When n is not an integer greater than or equal to 1.
+ */
 function nthPrime(n: number): number {
-  if (!Number.isInteger(n) || n < 1) {
-    throw new Error("n must be a positive integer");
-  }
+  assertIntegerInRange(n, "n", 1);
 
   const isPrime = (candidate: number): boolean => {
     if (candidate < 2) {
