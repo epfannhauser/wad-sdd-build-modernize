@@ -25,13 +25,39 @@ describe("GET /", () => {
   });
 
   it("returns catalog HTML with seeded duck data", async () => {
-    const html = await renderHomePage();
+    const html = await renderHomePage({ today: new Date("2026-07-08T00:00:00.000Z") });
 
     expect(html).toContain("The Rubber Duck Emporium");
+    expect(html).toContain("Duck of the Day");
     expect(html).toContain("Classic Debugging Duck");
     expect(html).toContain("Debugging");
     expect(html).toContain("€9.99");
     expect(html).toContain("Listens patiently while your bug explains itself.");
+  });
+
+  it("accepts a fixed date for deterministic Duck of the Day rendering", async () => {
+    const catalogPath = await writeTempCatalog([
+      {
+        id: "alpha-duck",
+        name: "Alpha Duck",
+        category: "Testing",
+        price: 1,
+        tagline: "First in line.",
+        soldOut: false,
+      },
+      {
+        id: "beta-duck",
+        name: "Beta Duck",
+        category: "Testing",
+        price: 2,
+        tagline: "Second but steady.",
+        soldOut: false,
+      },
+    ]);
+    const html = await renderHomePage({ catalogPath, today: new Date("2026-07-08T00:00:00.000Z") });
+
+    expect(html).toContain("Duck of the Day");
+    expect(html).toContain('href="/ducks/alpha-duck"');
   });
 
   it("returns the empty-state message with an empty catalog", async () => {

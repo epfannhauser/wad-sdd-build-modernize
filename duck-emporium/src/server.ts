@@ -5,12 +5,13 @@ import { renderCatalogPage } from "./renderCatalog.js";
 
 type AppOptions = {
   catalogPath?: string;
+  today?: Date;
 };
 
 export async function renderHomePage(options: AppOptions = {}): Promise<string> {
   const ducks = await loadCatalog(options.catalogPath);
 
-  return renderCatalogPage(ducks);
+  return renderCatalogPage(ducks, { today: options.today });
 }
 
 export function createApp(options: AppOptions = {}): Express {

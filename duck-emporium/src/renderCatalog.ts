@@ -1,6 +1,8 @@
 import type { Duck } from "./catalog.js";
+import { selectDuckOfTheDay } from "./duckOfTheDay.js";
 
 const emptyCatalogMessage = "No ducks are currently available. Please check back soon.";
+const emptyDuckOfTheDayMessage = "The pond is empty today, come back tomorrow.";
 
 function escapeHtml(value: string): string {
   return value
@@ -206,6 +208,104 @@ const pageStyles = `
       align-items: stretch;
     }
 
+    .feature-section {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(280px, 1.05fr);
+      gap: 0;
+      overflow: hidden;
+      margin: 0 0 28px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 22px 42px rgba(15, 23, 42, 0.12);
+    }
+
+    .feature-art {
+      display: grid;
+      place-items: center;
+      min-height: 310px;
+      background:
+        linear-gradient(135deg, var(--duck-surface), rgba(255, 255, 255, 0.62)),
+        radial-gradient(circle at 52% 20%, rgba(255, 255, 255, 0.72), transparent 34%);
+    }
+
+    .feature-art .duck-portrait {
+      width: min(78%, 320px);
+      padding: 0;
+      background: transparent;
+    }
+
+    .feature-art .duck-portrait svg {
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .feature-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    .feature-label {
+      margin: 0 0 12px;
+      color: var(--duck-detail);
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .feature-copy h2 {
+      margin: 0;
+      color: #111827;
+      font-size: clamp(1.9rem, 4vw, 3.25rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .feature-copy .duck-category {
+      margin-top: 18px;
+    }
+
+    .feature-copy .duck-tagline {
+      max-width: 48ch;
+      margin-bottom: 22px;
+      font-size: 1.02rem;
+    }
+
+    .feature-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .feature-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border-radius: 999px;
+      background: var(--duck-accent);
+      padding: 11px 16px;
+      color: #ffffff;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .feature-empty {
+      margin: 0 0 28px;
+      border: 1px dashed rgba(15, 23, 42, 0.22);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.75);
+      padding: 24px;
+      color: #475569;
+      font-weight: 800;
+      text-align: center;
+    }
+
     .duck-card {
       position: relative;
       display: flex;
@@ -393,6 +493,14 @@ const pageStyles = `
       .catalog-grid {
         grid-template-columns: 1fr;
       }
+
+      .feature-section {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-copy {
+        padding: 24px;
+      }
     }
 `;
 
@@ -433,7 +541,37 @@ function renderDuck(duck: Duck): string {
   ].join("\n");
 }
 
-export function renderCatalogPage(ducks: Duck[]): string {
+function renderDuckOfTheDay(ducks: Duck[], today: Date): string {
+  const result = selectDuckOfTheDay(ducks, today);
+
+  if (result.kind === "empty") {
+    return `<section class="feature-empty">${emptyDuckOfTheDayMessage}</section>`;
+  }
+
+  const theme = getTheme(result.duck.category);
+  const detailPath = `/ducks/${encodeURIComponent(result.duck.id)}`;
+
+  return [
+    `<section class="feature-section" style="--duck-accent: ${theme.accent}; --duck-surface: ${theme.surface}; --duck-detail: ${theme.detail};">`,
+    '  <div class="feature-art">',
+    `    ${renderDuckIllustration(result.duck)}`,
+    "  </div>",
+    '  <div class="feature-copy">',
+    '    <p class="feature-label">Duck of the Day</p>',
+    `    <h2>${escapeHtml(result.duck.name)}</h2>`,
+    `    <p class="duck-category">${escapeHtml(result.duck.category)}</p>`,
+    `    <p class="duck-tagline">${escapeHtml(result.duck.tagline)}</p>`,
+    '    <div class="feature-actions">',
+    `      <p class="duck-price">${formatPrice(result.duck.price)}</p>`,
+    `      <a class="feature-link" href="${detailPath}">View duck</a>`,
+    "    </div>",
+    "  </div>",
+    "</section>",
+  ].join("\n");
+}
+
+export function renderCatalogPage(ducks: Duck[], options: { today?: Date } = {}): string {
+  const today = options.today ?? new Date();
   const catalogContent =
     ducks.length === 0
       ? `<p class="empty-state">${emptyCatalogMessage}</p>`
@@ -465,6 +603,7 @@ export function renderCatalogPage(ducks: Duck[]): string {
     "      </div>",
     `      ${renderHeroIllustration()}`,
     "    </section>",
+    `    ${renderDuckOfTheDay(ducks, today)}`,
     `    ${catalogContent}`,
     "  </main>",
     "</body>",

@@ -40,6 +40,7 @@ describe("loadCatalog", () => {
           category: expect.any(String),
           price: expect.any(Number),
           tagline: expect.any(String),
+          soldOut: expect.any(Boolean),
         }),
       );
       expect(duck.id).not.toHaveLength(0);
@@ -58,6 +59,7 @@ describe("loadCatalog", () => {
         category: "Testing",
         price: 1.23,
         tagline: "Quacks under pressure.",
+        soldOut: false,
       },
     ]);
 
@@ -68,6 +70,7 @@ describe("loadCatalog", () => {
         category: "Testing",
         price: 1.23,
         tagline: "Quacks under pressure.",
+        soldOut: false,
       },
     ]);
   });

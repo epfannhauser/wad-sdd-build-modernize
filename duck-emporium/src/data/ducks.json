@@ -4,69 +4,79 @@
     "name": "Classic Debugging Duck",
     "category": "Debugging",
     "price": 9.99,
-    "tagline": "Listens patiently while your bug explains itself."
+    "tagline": "Listens patiently while your bug explains itself.",
+    "soldOut": false
   },
   {
     "id": "debugging-duck-midnight",
     "name": "Midnight Debugging Duck",
     "category": "Debugging",
     "price": 12.49,
-    "tagline": "For production issues that only appear after sunset."
+    "tagline": "For production issues that only appear after sunset.",
+    "soldOut": false
   },
   {
     "id": "debugging-duck-rubber-stack",
     "name": "Stack Trace Duck",
     "category": "Debugging",
     "price": 11.25,
-    "tagline": "Stares at logs until the truth floats to the surface."
+    "tagline": "Stares at logs until the truth floats to the surface.",
+    "soldOut": false
   },
   {
     "id": "philosopher-duck-socrates",
     "name": "Socrates Duck",
     "category": "Philosopher",
     "price": 14.95,
-    "tagline": "Answers every question with a smaller, stranger question."
+    "tagline": "Answers every question with a smaller, stranger question.",
+    "soldOut": false
   },
   {
     "id": "philosopher-duck-camus",
     "name": "Camus Duck",
     "category": "Philosopher",
     "price": 13.5,
-    "tagline": "Finds meaning in the absurdity of flaky tests."
+    "tagline": "Finds meaning in the absurdity of flaky tests.",
+    "soldOut": false
   },
   {
     "id": "maritime-duck-captain",
     "name": "Captain Quackbeard",
     "category": "Maritime",
     "price": 15.0,
-    "tagline": "Keeps your bathtub fleet pointed toward adventure."
+    "tagline": "Keeps your bathtub fleet pointed toward adventure.",
+    "soldOut": false
   },
   {
     "id": "maritime-duck-kraken",
     "name": "Kraken Survivor Duck",
     "category": "Maritime",
     "price": 16.75,
-    "tagline": "Has seen things in the deep end and lived to squeak."
+    "tagline": "Has seen things in the deep end and lived to squeak.",
+    "soldOut": false
   },
   {
     "id": "wellness-duck-meditation",
     "name": "Meditation Duck",
     "category": "Wellness",
     "price": 10.5,
-    "tagline": "Breathe in, quack out, retry the build."
+    "tagline": "Breathe in, quack out, retry the build.",
+    "soldOut": false
   },
   {
     "id": "wellness-duck-spa",
     "name": "Spa Day Duck",
     "category": "Wellness",
     "price": 12.0,
-    "tagline": "For when your code and your shoulders both need release."
+    "tagline": "For when your code and your shoulders both need release.",
+    "soldOut": false
   },
   {
     "id": "limited-duck-poe",
     "name": "Edgar Allan Poe Duck",
     "category": "Limited Edition",
     "price": 19.99,
-    "tagline": "Quoth the duck: nevermore merge on Friday."
+    "tagline": "Quoth the duck: nevermore merge on Friday.",
+    "soldOut": true
   }
 ]

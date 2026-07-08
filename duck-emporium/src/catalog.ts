@@ -8,6 +8,7 @@ export type Duck = {
   category: string;
   price: number;
   tagline: string;
+  soldOut: boolean;
 };
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
@@ -31,7 +32,8 @@ function isDuck(value: unknown): value is Duck {
     Number.isFinite(candidate.price) &&
     candidate.price >= 0 &&
     typeof candidate.tagline === "string" &&
-    candidate.tagline.length > 0
+    candidate.tagline.length > 0 &&
+    typeof candidate.soldOut === "boolean"
   );
 }
 
