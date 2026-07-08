@@ -1,0 +1,72 @@
+[
+  {
+    "id": "debugging-duck-classic",
+    "name": "Classic Debugging Duck",
+    "category": "Debugging",
+    "price": 9.99,
+    "tagline": "Listens patiently while your bug explains itself."
+  },
+  {
+    "id": "debugging-duck-midnight",
+    "name": "Midnight Debugging Duck",
+    "category": "Debugging",
+    "price": 12.49,
+    "tagline": "For production issues that only appear after sunset."
+  },
+  {
+    "id": "debugging-duck-rubber-stack",
+    "name": "Stack Trace Duck",
+    "category": "Debugging",
+    "price": 11.25,
+    "tagline": "Stares at logs until the truth floats to the surface."
+  },
+  {
+    "id": "philosopher-duck-socrates",
+    "name": "Socrates Duck",
+    "category": "Philosopher",
+    "price": 14.95,
+    "tagline": "Answers every question with a smaller, stranger question."
+  },
+  {
+    "id": "philosopher-duck-camus",
+    "name": "Camus Duck",
+    "category": "Philosopher",
+    "price": 13.5,
+    "tagline": "Finds meaning in the absurdity of flaky tests."
+  },
+  {
+    "id": "maritime-duck-captain",
+    "name": "Captain Quackbeard",
+    "category": "Maritime",
+    "price": 15.0,
+    "tagline": "Keeps your bathtub fleet pointed toward adventure."
+  },
+  {
+    "id": "maritime-duck-kraken",
+    "name": "Kraken Survivor Duck",
+    "category": "Maritime",
+    "price": 16.75,
+    "tagline": "Has seen things in the deep end and lived to squeak."
+  },
+  {
+    "id": "wellness-duck-meditation",
+    "name": "Meditation Duck",
+    "category": "Wellness",
+    "price": 10.5,
+    "tagline": "Breathe in, quack out, retry the build."
+  },
+  {
+    "id": "wellness-duck-spa",
+    "name": "Spa Day Duck",
+    "category": "Wellness",
+    "price": 12.0,
+    "tagline": "For when your code and your shoulders both need release."
+  },
+  {
+    "id": "limited-duck-poe",
+    "name": "Edgar Allan Poe Duck",
+    "category": "Limited Edition",
+    "price": 19.99,
+    "tagline": "Quoth the duck: nevermore merge on Friday."
+  }
+]
