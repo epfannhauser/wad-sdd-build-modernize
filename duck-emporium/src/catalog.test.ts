@@ -20,15 +20,34 @@ describe("loadCatalog", () => {
     const ducks = await loadCatalog();
 
     expect(ducks.length).toBeGreaterThanOrEqual(10);
-    expect(ducks[0]).toEqual(
-      expect.objectContaining({
-        id: expect.any(String),
-        name: expect.any(String),
-        category: expect.any(String),
-        price: expect.any(Number),
-        tagline: expect.any(String),
-      }),
-    );
+  });
+
+  it("loads seed ducks across at least three categories", async () => {
+    const ducks = await loadCatalog();
+    const categories = new Set(ducks.map((duck) => duck.category));
+
+    expect(categories.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it("loads seed ducks with all required fields", async () => {
+    const ducks = await loadCatalog();
+
+    ducks.forEach((duck) => {
+      expect(duck).toEqual(
+        expect.objectContaining({
+          id: expect.any(String),
+          name: expect.any(String),
+          category: expect.any(String),
+          price: expect.any(Number),
+          tagline: expect.any(String),
+        }),
+      );
+      expect(duck.id).not.toHaveLength(0);
+      expect(duck.name).not.toHaveLength(0);
+      expect(duck.category).not.toHaveLength(0);
+      expect(duck.tagline).not.toHaveLength(0);
+      expect(duck.price).toBeGreaterThanOrEqual(0);
+    });
   });
 
   it("reads a custom catalog path", async () => {
@@ -64,5 +83,11 @@ describe("loadCatalog", () => {
     ]);
 
     await expect(loadCatalog(filePath)).rejects.toThrow("not a valid duck");
+  });
+
+  it("loads an empty catalog as an empty list", async () => {
+    const filePath = await writeTempCatalog([]);
+
+    await expect(loadCatalog(filePath)).resolves.toEqual([]);
   });
 });
